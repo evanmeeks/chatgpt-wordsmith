@@ -64,3 +64,12 @@ ChatGPT.
 
 Transform your ChatGPT workspace into a professional-grade prompt engineering
 environment with WordSmith - where innovation meets AI conversation.
+![Maximized ChatGPT Browser Real-Estate](https://github.com/user-attachments/assets/4a06246e-0aa2-4e23-9f06-b7da4f63466e)
+
+![View Code And Edit Previous Prompts](https://github.com/user-attachments/assets/da3c2592-e731-4d42-816c-8f473a28351b)
+
+![Settings Persistence](https://github.com/user-attachments/assets/b794f7b6-d419-4f4a-9fa0-00cad51e23fb)
+
+![Custom UI Editing](https://github.com/user-attachments/assets/1203a01d-1f9c-4ad3-b33d-5f0c8d5a9fe4)
+
+![unnamed (3)](https://github.com/user-attachments/assets/e56596dc-2dcb-418e-9ed4-dcfe6584f620)
