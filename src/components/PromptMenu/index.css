@@ -1,0 +1,58 @@
+.prompt-language-container {
+  position: absolute;
+  top: -7px;
+}
+
+.prompt-language-selector-container {
+  height: 31px;
+  padding-top: 11px;
+  left: 1px;
+  position: absolute;
+  display: flex;
+  top: -29px;
+  border-top-right-radius: 46px;
+  border-top-left-radius: 46px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  width: 100%;
+}
+
+.collapse-controls-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px;
+  background-color: #f4f4f4;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.collapse-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.collapse-controls button {
+  padding: 4px 8px;
+  background-color: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.collapse-controls button:hover {
+  background-color: #f0f0f0;
+}
+
+main.user-collapsed .labeled-user > div > div {
+  overflow: hidden;
+  max-height: 0px;
+  transition: max-height 0.3s ease;
+  display: none;
+}
+
+main.assistant-collapsed .labeled-assistant {
+  overflow: hidden;
+  max-height: 10px;
+  transition: max-height 0.3s ease;
+  display: none;
+}

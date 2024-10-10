@@ -1,0 +1,239 @@
+@import '@radix-ui/colors/black-alpha.css';
+@import '@radix-ui/colors/mauve.css';
+@import '@radix-ui/colors/violet.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.fullscreen #editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.outer {
+  overflow: visible;
+}
+
+.inner {
+  overflow: hidden;
+  padding: 10px;
+}
+
+.diff-result {
+  margin: 0px 5px;
+}
+
+.collapse-user
+  article:has([data-message-author-role='user'])
+  .group\/conversation-turn {
+  overflow: hidden;
+}
+
+.collapse-user article:has([data-message-author-role='user']) .text-base {
+  padding: 17px;
+  margin: -6px;
+}
+
+.collapse-assistant
+  article:has([data-message-author-role='user'])
+  .group\/conversation-turn {
+  overflow: hidden;
+}
+
+.collapse-assistant article:has([data-message-author-role='user']) .text-base {
+  padding: 17px;
+  margin: -6px;
+}
+
+.collapse-both article .labeled {
+  max-height: 0px;
+  padding: 17px;
+  overflow: hidden;
+}
+
+.collapse-both article .group\/conversation-turn {
+  overflow: hidden;
+}
+
+.collapse-both article .text-base {
+  padding: 17px;
+  margin: -8px;
+}
+
+.collapse-user article:has([data-message-author-role='user']) .labeled {
+  max-height: 0px;
+  padding: 17px;
+  overflow: hidden;
+}
+
+.collapse-assistant
+  article:has([data-message-author-role='assistant'])
+  .labeled {
+  max-height: 0px;
+  padding: 17px;
+  overflow: hidden;
+}
+
+.hide-assistant article:has([data-message-author-role='assistant']) {
+  display: none;
+}
+
+.hide-user article:has([data-message-author-role='user']) {
+  display: none;
+}
+
+.language-selector-label {
+  z-index: 10000;
+  display: flex;
+  right: -2px;
+  top: -22px;
+  width: -webkit-fill-available;
+  max-width: 44%;
+  height: fit-content;
+  padding: 0px;
+  margin: 0px;
+  border-bottom-right-radius: 0px;
+  min-height: 22px;
+  border-bottom-left-radius: 0px;
+}
+
+.group\/conversation-turn {
+  border-top-left-radius: 0;
+}
+
+.prompt-language-selector-container button.SelectTrigger {
+  color: #000;
+}
+
+.dark-mode button.SelectTrigger {
+  color: white;
+  font-weight: 500;
+}
+
+button.SelectTrigger {
+  color: #ffffff;
+  font-weight: 100;
+  max-height: 20px;
+  border: 0px none;
+}
+
+span.file-icon {
+  margin: 0px;
+  padding: 0px;
+  display: block;
+  font-size: 12px;
+  height: 14px;
+  width: auto;
+  text-transform: capitalize;
+}
+
+.level-label {
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 4px;
+}
+
+span.file-icon.bat-lang-file-icon {
+  position: relative;
+  top: 3px;
+}
+
+svg.lucide.lucide-chevron-down {
+  color: #ffffff91;
+}
+
+svg.lucide.lucide-pen {
+  color: #ffffffa8;
+  height: 11px;
+  margin: 3px;
+  left: 8px;
+  position: relative;
+  top: 2px;
+}
+
+.language-selector-container {
+  right: -1px;
+  top: -22px;
+  width: -webkit-fill-available;
+  max-width: 44%;
+  height: -moz-fit-content;
+  height: fit-content;
+  padding: 0px;
+  margin: 0px;
+  border-bottom-right-radius: 0px;
+  min-height: 22px;
+  border-bottom-left-radius: 0px;
+  position: absolute;
+}
+
+.language-label {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: -10px;
+}
+
+.language-labels {
+  display: flex;
+  margin-bottom: 8px;
+  height: -moz-fit-content;
+  width: -moz-fit-content;
+  width: 402px;
+  position: absolute;
+  background: white;
+  flex-direction: row;
+  right: 235px;
+  bottom: -8px;
+  border: 1px solid #ccc;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.labeled .text-base {
+  max-height: max-content;
+  transition: max-height 0.3s ease;
+}
+
+.collapsed .text-base {
+  max-height: 20px;
+  transition: max-height 0.3s ease;
+}
+
+.collapse-toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding-left: 11px;
+  transition: transform 0.3s ease;
+}
+
+.collapse-toggle-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.collapse-toggle-button .icon-chevron {
+  fill: currentColor;
+  transition: transform 0.3s ease;
+}
+
+.collapsed .collapse-toggle-button .icon-chevron {
+  transform: rotate(-90deg);
+}
+
+article {
+  z-index: 0;
+}
+
+[data-message-author-role^=''] {
+  background: pink;
+}
+
+.monaco-list-row {
+  padding: 1px 8px;
+}
+
+._prosemirror-parent_15ceg_1 {
+  max-height: 45dvh;
+}

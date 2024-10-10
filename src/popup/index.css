@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  max-width: 424px;
+  min-width: 424px;
+  overflow: auto;
+  background: white;
+  max-height: 400px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+input,
+select,
+option {
+  cursor: pointer;
+}
+label {
+  display: block;
+}
+label:hover {
+  background: #b8cae921;
+  cursor: pointer;
+}
+
+.ws-quick-input-container {
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+.ws-quick-input-input::placeholder {
+  color: #858585;
+}
+
+.ws-quick-input-input:focus {
+  outline: 1px solid #007fd4;
+}
+
+/* Style for the options */
+.ws-option-item {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.ws-option-item:hover {
+  background-color: #2a2d2e;
+}
+
+.ws-option-item-active {
+  background-color: #094771;
+}
+input.ws-quick-input-input.ws-w-full.ws-flex-grow.ws-rounded.ws-border-none {
+  border-radius: 0px;
+}

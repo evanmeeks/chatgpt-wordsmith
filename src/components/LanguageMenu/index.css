@@ -1,0 +1,430 @@
+@import '@radix-ui/colors/black-alpha.css';
+@import '@radix-ui/colors/mauve.css';
+@import '@radix-ui/colors/violet.css';
+
+.dark-mode[data-message-id='promptEditor'] {
+  color: white;
+}
+
+.dark-mode option {
+  background-color: var(--main-surface-secondary);
+}
+
+.collapsed .group\/conversation-turn {
+  max-height: 0px;
+  overflow: hidden;
+}
+
+[data-message-id='promptEditor'] {
+  margin-top: 2px;
+  width: 95%;
+}
+
+.SelectContent {
+  width: var(--radix-select-trigger-width);
+  max-height: var(--radix-select-content-available-height);
+  max-width: fit-content;
+  border: 1px solid blue;
+  overflow: hidden;
+  background-color: white;
+  border-radius: 6px;
+}
+
+.SelectItem {
+  display: flex;
+  align-items: center;
+  padding: 0px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.prompt-language-container button {
+  max-height: 10px;
+}
+
+[data-radix-select-viewport] {
+  max-width: 400px;
+}
+
+.SelectItem[data-disabled] {
+  color: var(--mauve-8);
+  pointer-events: none;
+}
+
+.SelectItem[data-highlighted] {
+  outline: none;
+  background-color: rgb(237 233 254 / var(--tw-bg-opacity));
+}
+
+.SelectItem.show-file-icons {
+  padding: 1px 0px 10px;
+  margin: 0px;
+  cursor: pointer;
+}
+
+span.file-icon {
+  margin: 0px;
+  padding: 0px;
+  display: block;
+  font-size: 12px;
+  height: 14px;
+  width: auto;
+  text-transform: capitalize;
+}
+
+.prompt-language-selector-container span.show-file-icons {
+  padding: 29px 4px 14px 17px;
+  line-height: 13px;
+}
+
+.show-file-icons .vb-lang-file-icon.file-icon::before {
+  color: #d4d7d6;
+
+  background-image: unset;
+  width: 40px;
+}
+
+.prompt-language-container .wordsmith-editable > button[role='combobox'],
+.prompt-language-container button {
+  margin-top: 6px;
+  max-height: 22px;
+  border: 0px none;
+  font-size: 14px;
+  min-width: 250px;
+  padding: 0px;
+  margin-left: 11px;
+}
+
+.prompt-language-container button.show-file-icons {
+  margin: 2px;
+  border: 0px;
+}
+
+div[wordsmith-editable] {
+  max-height: 55%;
+}
+
+[data-radix-collection-item] prompt-language-selector-container {
+  cursor: pointer;
+  max-height: 25px;
+  font-size: 20px;
+  margin: 0px;
+  padding: 0px;
+  display: flex;
+  flex-direction: row;
+}
+
+.prompt-language-selector-container [role='option'] {
+  cursor: pointer;
+  max-height: 25px;
+  font-size: 20px;
+  margin: 0px;
+  padding: 0px;
+  display: flex;
+  flex-direction: row;
+}
+
+.prompt-language-selector-container select option {
+  cursor: pointer;
+  max-height: 25px;
+  font-size: 20px;
+  margin: 0px;
+  padding: 0px;
+  display: flex;
+  flex-direction: row;
+}
+
+.grid {
+  overflow: hidden;
+}
+
+.prompt-language-selector-container option {
+  display: none;
+}
+
+.SelectRoot {
+  display: flex;
+}
+
+.ScrollAreaRoot {
+  border: 1px solid blue;
+  width: 100%;
+  height: 100%;
+}
+
+.ScrollAreaViewport {
+  width: 100%;
+  height: 100%;
+  border: 2px solid orange;
+}
+
+.ScrollAreaScrollbar {
+  width: 4px;
+  padding: 5px 2px;
+}
+
+.ScrollAreaThumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.fullscreen-editor {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 199vh;
+  z-index: 9999 !important;
+  display: flex !important;
+
+  flex-direction: column !important;
+  min-height: 100vh;
+  margin-top: 22px;
+}
+
+.monaco-list-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+}
+
+.fullscreen-editor .monaco-editor {
+  flex-grow: 1 !important;
+  width: 100% !important;
+}
+
+.fullscreen-editor .fullscreen-toggle {
+  top: 0 !important;
+  z-index: 111111;
+  position: fixed;
+}
+
+.fullscreen-editor .prompt-language-selector-container {
+  position: fixed;
+  top: -19px;
+  z-index: 111111;
+  left: -25px;
+  margin: 11px 0px 0px 0px;
+  width: 103vw;
+}
+
+.fullscreen-toggle {
+  position: absolute;
+  top: -21px;
+  right: 19px;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+.selected-lang {
+  font-size: 0.9rem;
+  color: #000;
+  font-weight: 400;
+}
+
+div.turn-container {
+  border-top-right-radius: 0px;
+}
+
+.overflow {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  position: relative;
+}
+
+.floating-menu {
+  max-height: 25rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 2px solid #205fcc;
+  border-color: #205fcc;
+  border-radius: 11px;
+}
+
+.menu-item {
+  display: flex;
+  text-transform: capitalize;
+  align-items: center;
+  padding: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-size: 0.8rem;
+  margin: 0px;
+}
+
+.menu-item:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.TooltipContent {
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-size: 15px;
+  line-height: 1;
+  color: white;
+  background-color: black;
+  box-shadow:
+    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  user-select: none;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.TooltipContent[data-state='delayed-open'][data-side='top'] {
+  animation-name: slideDownAndFade;
+}
+
+.TooltipContent[data-state='delayed-open'][data-side='right'] {
+  animation-name: slideLeftAndFade;
+}
+
+.TooltipContent[data-state='delayed-open'][data-side='bottom'] {
+  animation-name: slideUpAndFade;
+}
+
+.TooltipContent[data-state='delayed-open'][data-side='left'] {
+  animation-name: slideRightAndFade;
+}
+
+.TooltipArrow {
+  fill: black;
+}
+
+.IconButton {
+  font-family: inherit;
+  border-radius: 100%;
+  height: 35px;
+  width: 35px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background-color: black;
+  box-shadow: 0 2px 10px var(--black-a7);
+}
+
+.IconButton:hover {
+  background-color: var(--violet-3);
+}
+
+.IconButton:focus {
+  box-shadow: 0 0 0 2px black;
+}
+
+@keyframes slideUpAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideRightAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(-2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideDownAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeftAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+button.ws-flex {
+  justify-content: flex-start;
+  display: flex;
+  align-content: center;
+  align-items: stretch;
+  flex-direction: row;
+}
+
+.language-selector-container {
+  display: flex;
+  top: -23px;
+  min-width: 363px;
+  max-height: 22px;
+  justify-content: center;
+  align-content: flex-end;
+  align-items: center;
+  right: -1px;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+.SelectIcon {
+  color: Var(--violet-11);
+}
+
+.SelectViewport {
+  padding: 10px;
+  border: 1px solid blue;
+  border-radius: 5px;
+}
+
+.SelectLabel {
+  padding: 0 25px;
+  font-size: 12px;
+  line-height: 25px;
+  color: var(--mauve-11);
+}
+
+.SelectSeparator {
+  height: 1px;
+  background-color: var(--violet-6);
+  margin: 5px;
+}
+
+.SelectItemIndicator {
+  position: absolute;
+  left: 0;
+  width: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.SelectScrollButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 25px;
+  background-color: white;
+  color: var(--violet-11);
+  cursor: default;
+}
