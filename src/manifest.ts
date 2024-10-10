@@ -47,5 +47,5 @@ export default defineManifest({
     },
   ],
 
-  permissions: ['storage', 'activeTab', 'scripting', 'nativeMessaging'],
+  permissions: ['storage'],
 });
