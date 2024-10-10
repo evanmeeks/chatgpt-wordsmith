@@ -1,4 +1,4 @@
-# ChatGPT WordSmith - Advanced AI Chat Prompt Engineering Suite
+# ChatGPT WordSmith - AI Prompt Engineering Suite
 
 Revolutionize your AI interactions with WordSmith, the premier browser extension
 for ChatGPT power users, developers, and prompt engineering virtuosos.
@@ -11,9 +11,9 @@ analytical insights.
 
 ## 🔧 Cutting-Edge Features:
 
-- **Professional-Grade Editor Integration:** Experience the power of Microsoft's
-  Monaco Editor, the same engine behind Visual Studio Code, now seamlessly
-  integrated into ChatGPT. Enjoy a familiar, feature-rich editing environment
+- **Professional-Grade Editor Integration:** Runs on the the power of the [Microsoft's
+  Monaco Editor](https://github.com/microsoft/monaco-editor) the editing engine inside [Visual Studio Code](https://github.com/microsoft/vscode), 
+  now seamlessly integrated into ChatGPT. Enjoy a familiar, feature-rich editing environment
   that takes your prompt crafting to the next level.
 - **Context-Aware Adjustments:** Automatically fine-tune prompts based on
   conversation context, ensuring coherence and relevance.
