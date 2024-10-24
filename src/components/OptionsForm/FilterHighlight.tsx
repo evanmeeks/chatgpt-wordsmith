@@ -41,12 +41,10 @@ const filterOptions = (options: any, searchTerms: string[]): any => {
         'enumDescriptions' in value ||
         'markdownDescription' in value
       ) {
-        // This is an individual option
         if (optionMatchesSearch(value, searchTerms)) {
           filteredOptions[key] = value;
         }
       } else {
-        // This is a nested object of options
         const filtered = filterOptions(value, searchTerms);
         if (Object.keys(filtered).length > 0) {
           filteredOptions[key] = filtered;
@@ -93,9 +91,9 @@ export const withSearchHighlight = (
           <input
             ref={searchQueryInputRef}
             type="text"
-            className="ws-quick-input-input ws-mb-[4px] ws-w-full ws-flex-grow ws-rounded ws-border-none"
+            className="ws-quick-input-input ws-static ws-top-0 ws-mb-[4px] ws-w-full ws-flex-grow ws-rounded ws-border-none ws-bg-white ws-p-4 ws-outline-none focus:ws-outline-none"
             style={{ height: '24px' }}
-            placeholder="Search settings (name, description, enum descriptions)"
+            placeholder="Search Editor Options"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />

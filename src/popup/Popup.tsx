@@ -4,6 +4,7 @@ import { sendMessageToContentScript } from '../utils/messaging';
 import {
   CHATGPT_WS_LANGUAGES,
   CHATGPT_WS_EDIT_INIT_OPTIONS,
+  CHATGPT_WS_OPTIONS,
   IEditorOptions,
 } from '../constants';
 import SearchableOptionsForm from '../components/OptionsForm/FilterHighlight';
@@ -225,7 +226,6 @@ const TabbedSettingsContainer = () => {
         <div className="ws-min-w-[calc(100%-17px)]">
           {activeTab === 'other' && (
             <div className="ws-flex ws-flex-col ws-rounded ws-p-[8px]">
-              <h3 className="ws-text-lg ws-font-semibold">Text Editor</h3>
               <SearchableOptionsForm
                 options={CHATGPT_WS_EDIT_INIT_OPTIONS}
                 onChange={handleUpdate}

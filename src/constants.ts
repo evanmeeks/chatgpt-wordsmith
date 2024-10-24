@@ -17,6 +17,12 @@ export interface IEditorOptions extends monaco.editor.IEditorOptions {
   lineNumbersEnabled?: boolean;
 }
 
+export const CHATGPT_WS_EDIT_INIT_OPTIONS = monaco.editor.EditorOptions;
+export type CHATGPT_WS_OPTIONS = typeof monaco.editor.EditorOptions;
+export const CHATGPT_WS_LANGUAGES = monaco.languages.getLanguages();
+export const CHATGPT_WS_FONT_FAMILY = `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`;
+export const CHATGPT_DEFAULT_FONT_SIZE = 14;
+
 export const DEFAULT_SETTINGS: IEditorOptions = {
   codeEditor: {
     prompt: true,
@@ -28,26 +34,16 @@ export const DEFAULT_SETTINGS: IEditorOptions = {
   },
   theme: 'chatGPTLight',
   promptEditor: 'plaintext',
+  codeLensFontFamily: CHATGPT_WS_FONT_FAMILY,
+  codeLensFontSize: CHATGPT_DEFAULT_FONT_SIZE,
 };
-
-export const CHATGPT_WS_EDIT_INIT_OPTIONS = monaco.editor.EditorOptions;
-export const CHATGPT_WS_LANGUAGES = monaco.languages.getLanguages();
-export const CHATGPT_WS_FONT_FAMILY = `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`;
-export const CHATGPT_DEFAULT_FONT_SIZE = 14;
-export const CHATGPT_WS_EDIT_POPUP_DEFAULTS = [
-  'theme',
-  'contextmenu',
-  'cursorStyle',
-  'cursorBlinking',
-  'cursorWidth',
-  'fontSize',
-  'fontFamily',
-  'lineNumbers',
-];
 
 export const CHATGPT_WS_CONVERSATION_EDIT_DEFAULT_OPTIONS = {
   automaticLayout: true,
   minimap: { enabled: false },
+  codeLensFontFamily: CHATGPT_WS_FONT_FAMILY,
+  codeLensFontSize: CHATGPT_DEFAULT_FONT_SIZE,
+  codeLens: true,
   scrollBeyondLastLine: true,
   wordWrap: 'on',
   lineNumbers: 'off',
@@ -58,6 +54,9 @@ export const CHATGPT_WS_PROMPT_EDIT_DEFAULT_OPTIONS = {
   overviewRulerLanes: 0,
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
+  codeLensFontFamily: CHATGPT_WS_FONT_FAMILY,
+  codeLensFontSize: CHATGPT_DEFAULT_FONT_SIZE,
+  codeLens: true,
   automaticLayout: true,
   wordWrap: 'on',
   lineNumbers: 'off',

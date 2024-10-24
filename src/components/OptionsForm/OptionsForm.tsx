@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-} from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Label,
   NumberInput,
@@ -13,6 +7,7 @@ import {
   Check,
 } from '../../popup/Popup';
 import { Highlight } from './Highlight';
+import { CHATGPT_WS_OPTIONS } from '../../constants';
 
 function camelCaseToTitle(camelCase: string) {
   return camelCase
@@ -21,16 +16,16 @@ function camelCaseToTitle(camelCase: string) {
 }
 
 export interface OptionsFormProps {
-  options: any;
+  options: Partial<CHATGPT_WS_OPTIONS>;
   currentValues: { [key: string]: any };
   onChange: (newValues: { [key: string]: any }) => void;
-  searchTerms: string[];
+  searchTerms?: string[];
 }
 
 export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
   ({ options, currentValues, onChange, searchTerms }) => {
     const [localValues, setLocalValues] = useState(currentValues);
-    const [showDescription] = useState(false);
+    const [setShowDescription, showDescription] = useState('font');
 
     useEffect(() => {
       setLocalValues(currentValues);
@@ -59,7 +54,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
         const optTitle = (
           <Highlight
             text={camelCaseToTitle(name ?? key)}
-            searchTerms={searchTerms}
+            searchTerms={searchTerms ?? []}
           />
         );
 
@@ -80,7 +75,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                 />
                 <span>{optTitle}</span>
               </Label>
-              {description && showDescription === key && (
+              {description && (
                 <p className="mt-1 text-sm text-gray-500">{description}</p>
               )}
             </div>
@@ -104,7 +99,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                   />
                   <span>{optTitle}</span>
                 </Label>
-                {schema.description && showDescription === key && (
+                {schema.description && (
                   <p className="mt-1 text-sm text-gray-500">
                     {schema.description}
                   </p>
@@ -128,7 +123,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                   max={schema.maximum}
                   aria-labelledby={`${key}-label`}
                 />
-                {schema.description && showDescription === key && (
+                {schema.description && (
                   <p className="mt-1 text-sm text-gray-500">
                     {schema.description}
                   </p>
@@ -154,7 +149,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                       </option>
                     ))}
                   </Select>
-                  {schema.description && showDescription === key && (
+                  {schema.description && (
                     <p className="mt-1 text-sm text-gray-500">
                       {schema.description}
                     </p>
@@ -173,7 +168,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                     id={key}
                     aria-labelledby={`${key}-label`}
                   />
-                  {schema.description && showDescription === key && (
+                  {schema.description && (
                     <p className="mt-1 text-sm text-gray-500">
                       {schema.description}
                     </p>
@@ -202,7 +197,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                 <legend className="text-lg font-semibold">
                   <Highlight
                     text={camelCaseToTitle(key)}
-                    searchTerms={searchTerms}
+                    searchTerms={searchTerms ?? []}
                   />
                 </legend>
                 {renderOptions(value)}
