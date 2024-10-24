@@ -6,7 +6,7 @@ import {
   CHATGPT_WS_EDIT_INIT_OPTIONS,
   IEditorOptions,
 } from '../constants';
-import SearchableOptionsForm from '../components/OptionsForm/TypeaheadHOC';
+import SearchableOptionsForm from '../components/OptionsForm/FilterHighlight';
 
 const themes = [
   { value: 'chatGPTLight', label: 'ChatGPT Light' },
