@@ -33,21 +33,15 @@ export const DEFAULT_SETTINGS: IEditorOptions = {
     widthCustom: undefined,
   },
   codeLensFontFamily: CHATGPT_WS_FONT_FAMILY,
-  codeLensFontSize: 14,
-  fontSize: 14,
+  codeLensFontSize: CHATGPT_DEFAULT_FONT_SIZE,
+  fontSize: CHATGPT_DEFAULT_FONT_SIZE,
   fontFamily: CHATGPT_WS_FONT_FAMILY,
   lineNumbers: 'off',
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
   theme: 'chatGPTLight',
   promptEditor: 'plaintext',
-  codeLensFontFamily: CHATGPT_WS_FONT_FAMILY,
-  codeLensFontSize: CHATGPT_DEFAULT_FONT_SIZE,
 };
-
-export const CHATGPT_WS_EDIT_INIT_OPTIONS = monaco.editor.EditorOptions;
-export const CHATGPT_WS_LANGUAGES = monaco.languages.getLanguages();
-export const CHATGPT_DEFAULT_FONT_SIZE = 14;
 export const CHATGPT_WS_EDIT_POPUP_DEFAULTS = [
   'theme',
   'contextmenu',
@@ -59,7 +53,6 @@ export const CHATGPT_WS_EDIT_POPUP_DEFAULTS = [
   'lineNumbers',
 ];
 
-
 export const CHATGPT_WS_CONVERSATION_EDIT_DEFAULT_OPTIONS = {
   overviewRulerBorder: false,
   overviewRulerLanes: 0,
@@ -70,7 +63,6 @@ export const CHATGPT_WS_CONVERSATION_EDIT_DEFAULT_OPTIONS = {
   scrollBeyondLastLine: true,
   wordWrap: 'on',
   lineNumbers: 'off',
-  scrollBeyondLastLine: false,
   automaticLayout: true,
 };
 
