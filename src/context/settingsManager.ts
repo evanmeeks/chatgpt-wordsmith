@@ -31,7 +31,8 @@ export function updateSettings(
 
 export function resetSettings(): Promise<void> {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.set({ settings: DEFAULT_SETTINGS }, () => {
+    const updatedSettings = { ...DEFAULT_SETTINGS };
+    chrome.storage.local.set({ settings: updatedSettings }, () => {
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
       } else {

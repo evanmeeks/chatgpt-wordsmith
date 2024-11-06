@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useCallback,
 } from 'react';
-import { IEditorOptions } from '../constants';
+import { DEFAULT_SETTINGS, IEditorOptions } from '../constants';
 import {
   getSettings,
   updateSettings as updateSettingsInStorage,
@@ -57,8 +57,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const resetSettingsHandler = useCallback(async () => {
     await resetSettingsInStorage();
-    const defaultSettings = await getSettings();
-    setSettings(defaultSettings);
+    setSettings((prev) => ({ ...prev, DEFAULT_SETTINGS }));
   }, []);
 
   return useMemo(
