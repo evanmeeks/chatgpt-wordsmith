@@ -5,6 +5,7 @@ import {
   CHATGPT_WS_LANGUAGES,
   CHATGPT_WS_EDIT_INIT_OPTIONS,
   IEditorOptions,
+  DEFAULT_SETTINGS,
 } from '../constants';
 import SearchableOptionsForm from '../components/OptionsForm/TypeaheadHOC';
 
@@ -138,14 +139,12 @@ const TabbedSettingsContainer = () => {
     codeEditorPrompt: '',
   });
 
-  const handleReset = async () => {
-    const response = await sendMessageToContentScript({
+  const handleReset = () => {
+    sendMessageToContentScript({
       type: 'RESET_SETTINGS',
     });
 
-    if (response?.reset) {
-      resetSettings();
-    }
+    resetSettings();
   };
 
   const reloadSettingsHandler = useCallback(

@@ -63,15 +63,6 @@ const ConversationEditor = () => {
       const editor = monaco.editor.create(container, editorSettings);
       editor.setModel(model);
 
-      editor.addAction({
-        id: 'submit-on-enter',
-        label: 'Submit on Enter',
-        keybindings: [monaco.KeyCode.Enter],
-        run: function () {
-          sendButton!.click();
-        },
-      });
-
       editorsRef.current.set(conversationId ?? 'promptEditor', editor);
 
       return editor;
@@ -152,7 +143,7 @@ const ConversationEditor = () => {
       ) as HTMLElement;
       containerRef.current = document.createElement('div');
       containerRef.current.className = 'wordsmith-conversation-editor-ready';
-      // containerRef.current.setAttribute('style', containerStyle);
+
       turnElement.setAttribute('style', containerStyle);
       const gridElement = sibling.querySelector('.grid') as HTMLElement;
       if (gridElement) {

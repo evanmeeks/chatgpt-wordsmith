@@ -17,6 +17,8 @@ export interface IEditorOptions extends monaco.editor.IEditorOptions {
   lineNumbersEnabled?: boolean;
 }
 
+export const CHATGPT_WS_FONT_FAMILY = `Menlo, Monaco, 'Courier New', monospace`;
+
 export const DEFAULT_SETTINGS: IEditorOptions = {
   codeEditor: {
     prompt: true,
@@ -26,13 +28,19 @@ export const DEFAULT_SETTINGS: IEditorOptions = {
     widthFull: true,
     widthCustom: undefined,
   },
+  codeLensFontFamily: "Menlo, Monaco, 'Courier New', monospace",
+  codeLensFontSize: 14,
+  fontSize: 14,
+  fontFamily: CHATGPT_WS_FONT_FAMILY,
+  lineNumbers: 'off',
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
   theme: 'chatGPTLight',
   promptEditor: 'plaintext',
 };
 
 export const CHATGPT_WS_EDIT_INIT_OPTIONS = monaco.editor.EditorOptions;
 export const CHATGPT_WS_LANGUAGES = monaco.languages.getLanguages();
-export const CHATGPT_WS_FONT_FAMILY = `ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`;
 export const CHATGPT_DEFAULT_FONT_SIZE = 14;
 export const CHATGPT_WS_EDIT_POPUP_DEFAULTS = [
   'theme',
@@ -46,11 +54,11 @@ export const CHATGPT_WS_EDIT_POPUP_DEFAULTS = [
 ];
 
 export const CHATGPT_WS_CONVERSATION_EDIT_DEFAULT_OPTIONS = {
-  automaticLayout: true,
+  overviewRulerBorder: false,
+  overviewRulerLanes: 0,
   minimap: { enabled: false },
-  scrollBeyondLastLine: true,
-  wordWrap: 'on',
-  lineNumbers: 'off',
+  scrollBeyondLastLine: false,
+  automaticLayout: true,
 };
 
 export const CHATGPT_WS_PROMPT_EDIT_DEFAULT_OPTIONS = {
@@ -59,8 +67,7 @@ export const CHATGPT_WS_PROMPT_EDIT_DEFAULT_OPTIONS = {
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
   automaticLayout: true,
-  wordWrap: 'on',
-  lineNumbers: 'off',
+
   scrollbar: {
     vertical: 'visible',
     horizontalSliderSize: 4,
