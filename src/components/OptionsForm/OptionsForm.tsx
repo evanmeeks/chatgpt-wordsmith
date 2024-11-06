@@ -1,11 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-} from 'react';
-
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   Label,
   NumberInput,
@@ -13,6 +6,8 @@ import {
   TextInput,
   Check,
 } from '../../popup/Popup';
+import { Highlight } from './Highlight';
+import { CHATGPT_WS_OPTIONS } from '../../constants';
 
 function camelCaseToTitle(camelCase: string) {
   return camelCase
@@ -21,23 +16,20 @@ function camelCaseToTitle(camelCase: string) {
 }
 
 export interface OptionsFormProps {
-  options: any;
+  options: Partial<CHATGPT_WS_OPTIONS>;
   currentValues: { [key: string]: any };
   onChange: (newValues: { [key: string]: any }) => void;
+  searchTerms?: string[];
 }
 
 export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
-  ({ options, currentValues, onChange }) => {
+  ({ options, currentValues, onChange, searchTerms }) => {
     const [localValues, setLocalValues] = useState(currentValues);
-    const [showDescription, setShowDescription] = useState();
-    const initialRenderRef = useRef(true);
+    const [setShowDescription, showDescription] = useState('font');
 
     useEffect(() => {
-      if (initialRenderRef.current) {
-        setLocalValues(currentValues);
-        initialRenderRef.current = false;
-      }
-    }, [options, currentValues]);
+      setLocalValues(currentValues);
+    }, [currentValues]);
 
     const handleInputChange = useCallback(
       (optionId: string, value: any) => {
@@ -59,14 +51,19 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
         const { name, defaultValue, schema, description } = option;
         const currentValue = localValues[key] ?? defaultValue;
 
-        const optTitle = camelCaseToTitle(name ?? key);
+        const optTitle = (
+          <Highlight
+            text={camelCaseToTitle(name ?? key)}
+            searchTerms={searchTerms ?? []}
+          />
+        );
+
         const optionType = schema?.type || typeof defaultValue;
 
         if (
           option.hasOwnProperty('defaultValue') &&
           typeof defaultValue === 'boolean'
         ) {
-          // Handle IEditorOption<EditorOption, boolean> type
           return (
             <div key={key} className="ws-py-[3px]">
               <Label htmlFor={key}>
@@ -78,7 +75,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                 />
                 <span>{optTitle}</span>
               </Label>
-              {description && showDescription === key && (
+              {description && (
                 <p className="mt-1 text-sm text-gray-500">{description}</p>
               )}
             </div>
@@ -102,7 +99,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                   />
                   <span>{optTitle}</span>
                 </Label>
-                {schema.description && showDescription === key && (
+                {schema.description && (
                   <p className="mt-1 text-sm text-gray-500">
                     {schema.description}
                   </p>
@@ -126,7 +123,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                   max={schema.maximum}
                   aria-labelledby={`${key}-label`}
                 />
-                {schema.description && showDescription === key && (
+                {schema.description && (
                   <p className="mt-1 text-sm text-gray-500">
                     {schema.description}
                   </p>
@@ -152,7 +149,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                       </option>
                     ))}
                   </Select>
-                  {schema.description && showDescription === key && (
+                  {schema.description && (
                     <p className="mt-1 text-sm text-gray-500">
                       {schema.description}
                     </p>
@@ -171,7 +168,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
                     id={key}
                     aria-labelledby={`${key}-label`}
                   />
-                  {schema.description && showDescription === key && (
+                  {schema.description && (
                     <p className="mt-1 text-sm text-gray-500">
                       {schema.description}
                     </p>
@@ -183,7 +180,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
             return null;
         }
       },
-      [localValues, handleInputChange],
+      [localValues, handleInputChange, searchTerms],
     );
 
     const renderOptions = useCallback(
@@ -198,7 +195,10 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
             return (
               <fieldset key={key} className="ws-py-[3px]">
                 <legend className="text-lg font-semibold">
-                  {camelCaseToTitle(key)}
+                  <Highlight
+                    text={camelCaseToTitle(key)}
+                    searchTerms={searchTerms ?? []}
+                  />
                 </legend>
                 {renderOptions(value)}
               </fieldset>
@@ -208,7 +208,7 @@ export const OptionsForm: React.FC<OptionsFormProps> = React.memo(
           }
         });
       },
-      [renderOption],
+      [renderOption, searchTerms],
     );
 
     const memoizedForm = useMemo(() => {
