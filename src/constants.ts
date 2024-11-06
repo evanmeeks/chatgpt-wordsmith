@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS: IEditorOptions = {
     widthFull: true,
     widthCustom: undefined,
   },
-  codeLensFontFamily: "Menlo, Monaco, 'Courier New', monospace",
+  codeLensFontFamily: CHATGPT_WS_FONT_FAMILY,
   codeLensFontSize: 14,
   fontSize: 14,
   fontFamily: CHATGPT_WS_FONT_FAMILY,
