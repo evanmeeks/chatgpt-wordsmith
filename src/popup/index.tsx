@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { SettingsProvider } from '../context/SettingsContext';
 import Popup from './Popup';
-import ErrorBoundary from '../ErrorBoundary';
+import ErrorBoundary from '../components/Error/ErrorBoundary';
 import './index.css';
 
 const root = document.createElement('div');
