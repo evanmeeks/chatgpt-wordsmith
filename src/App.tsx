@@ -9,7 +9,7 @@ import * as monaco from 'monaco-editor';
 import * as Switch from '@radix-ui/react-switch';
 import { StateProvider, useAppState, updateState } from './state';
 import ConversationEditorWrapper from './components/Conversation';
-import { BaseStyleSheet } from './BaseStyleSheet';
+import { BaseStyleSheet } from './components/Style/BaseStyleSheet';
 import PromptEditor from './components/Prompt';
 import LanguageMenu from './components/LanguageMenu';
 import PromptMenu from './components/PromptMenu';
@@ -141,11 +141,6 @@ function AppContent() {
     if (element) {
       element.classList.add('highlight-flash');
 
-      // Remove the highlight class after a short duration (e.g., 1.5 seconds)
-      setTimeout(() => {
-        element.classList.remove('highlight-flash');
-      }, 1500); // 1500 milliseconds = 1.5 seconds
-
       const turnContainer = element.closest(
         GROUPED_TURN_CONTAINER,
       )?.parentElement;
@@ -185,7 +180,6 @@ function AppContent() {
     payload: { user: any; assistant: any; none: any };
   }) => {
     const { user, assistant, none } = message.payload;
-    // filterMessages({ user, assistant });
     if (user) {
       document.querySelector('main')?.classList.remove('hide-user');
       document.querySelector('main')?.classList.add('hide-assistant');
@@ -319,7 +313,6 @@ function AppContent() {
         if (
           window.confirm(
             `Reset all WordSmith settings to default?
-
             ⚠️ This will require page refresh to take effect.`,
           )
         ) {
@@ -361,9 +354,6 @@ function AppContent() {
       <div className="ws-relavtive chagtpt-app-wrapper ws-cursor-pointer">
         <BaseStyleSheet />
         <AssignDom />
-        {settings.codeEditor?.prompt ? (
-          <PromptMenu key={`prompt-menu-${langkey}`} />
-        ) : null}
         {settings.codeEditor?.conversation && (
           <LanguageMenu
             handleDefaultEdit={() =>
@@ -375,11 +365,14 @@ function AppContent() {
             key={'language-menu-' + langkey}
           />
         )}
-        {settings.codeEditor?.prompt && (
-          <PromptEditor key={`prompt-editor-${langkey}`} />
-        )}
         {settings.codeEditor?.conversation && (
           <ConversationEditorWrapper key={`conversation-editor-${langkey}`} />
+        )}
+        {settings.codeEditor?.prompt ? (
+          <PromptMenu key={`prompt-menu-${langkey}`} />
+        ) : null}
+        {settings.codeEditor?.prompt && (
+          <PromptEditor key={`prompt-editor-${langkey}`} />
         )}
       </div>
     ),
