@@ -8,11 +8,10 @@ import {
   PROSEMIRROR,
   CHATGPT_PROMPT_TEXAREA_ID,
   SEND_MSG_BUTTON,
+  EDITOR_INITIALIZED_CLASS,
 } from '../../content/AssignDom';
 import { useSettings } from '../../context/SettingsContext';
 import './index.css';
-
-const languageMap = CHATGPT_WS_LANGUAGES;
 
 const PromptEditor: React.FC = () => {
   const { settings } = useSettings();
@@ -22,6 +21,7 @@ const PromptEditor: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isInitializedRef = useRef<boolean>(false);
   const screenButtonRef = useRef<HTMLButtonElement | null>(null);
+  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleFullscreenChange = () => {
@@ -49,7 +49,17 @@ const PromptEditor: React.FC = () => {
       editor.addAction(action);
     }
   };
+
   const sendButton = document.querySelector<HTMLButtonElement>(SEND_MSG_BUTTON);
+
+  const checkInitialized = useCallback(() => {
+    const promptParent = document.querySelector(PROSEMIRROR)?.parentElement;
+    const isIntialized = promptParent?.classList.contains(
+      EDITOR_INITIALIZED_CLASS,
+    );
+    console.log('Is initialized:', isIntialized);
+    return promptParent?.classList.contains(EDITOR_INITIALIZED_CLASS);
+  }, []);
 
   const setupEditorEvents = (
     editor: monaco.editor.IStandaloneCodeEditor,
@@ -144,13 +154,26 @@ const PromptEditor: React.FC = () => {
 
   const initializeEditor = useCallback(() => {
     const promptProseMirror = document.querySelector<HTMLElement>(PROSEMIRROR);
-    if (!promptProseMirror) {
+    const promptParent = promptProseMirror?.parentElement;
+
+    if (!promptProseMirror || !promptParent) {
       console.error('ProseMirror editor not found');
       return;
     }
-    if (isInitializedRef.current) return;
 
-    isInitializedRef.current = true;
+    if (checkInitialized()) {
+      if (editorRef.current) {
+        editorRef.current.dispose();
+        editorRef.current = undefined;
+      }
+      if (containerRef.current) {
+        containerRef.current.remove();
+      }
+      promptParent.classList.remove(EDITOR_INITIALIZED_CLASS);
+      promptProseMirror.classList.remove('hidden');
+      const existingButton = promptParent.querySelector('.fullscreen-toggle');
+      if (existingButton) existingButton.remove();
+    }
 
     containerRef.current = document.createElement('div');
     containerRef.current.id = 'wordsmith-prompt';
@@ -229,6 +252,10 @@ const PromptEditor: React.FC = () => {
       setupEditorEvents(editorRef.current, promptProseMirror);
       adjustEditorHeight(editorRef.current);
       document.addEventListener('fullscreenchange', handleFullscreenChange);
+      promptParent.classList.add(EDITOR_INITIALIZED_CLASS);
+      document
+        .querySelector('[data-testid="bar-composer-bar"]')
+        ?.setAttribute('style', 'overflow: visible');
     } catch (error) {
       console.error('Error initializing editor:', error);
     }
@@ -258,6 +285,11 @@ const PromptEditor: React.FC = () => {
   }, []);
 
   const disposeEditor = () => {
+    if (checkIntervalRef.current) {
+      clearInterval(checkIntervalRef.current);
+      checkIntervalRef.current = null;
+    }
+
     if (editorRef.current) {
       editorRef.current.dispose();
       editorRef.current = undefined;
@@ -280,7 +312,6 @@ const PromptEditor: React.FC = () => {
     const editorElement = editor.getDomNode();
 
     const minHeight = lineHeight * 3;
-
     const newHeight = Math.max(
       minHeight,
       Math.min(lineCount * lineHeight, 75 * lineHeight),
@@ -300,7 +331,6 @@ const PromptEditor: React.FC = () => {
   const handleLanguageUpdate = useCallback(
     (language: string) => {
       const updatedLanguage = language || settings.promptEditor;
-
       const monacoLanguage = updatedLanguage ?? 'plaintext';
       if (editorRef.current) {
         const model = editorRef.current.getModel();
@@ -344,44 +374,19 @@ const PromptEditor: React.FC = () => {
   }, [toggleFullscreen]);
 
   useEffect(() => {
+    const checkEditorPresence = () => {
+      const promptParent = document.querySelector(PROSEMIRROR)?.parentElement;
+      if (promptParent && !checkInitialized()) {
+        initializeEditor();
+      }
+    };
     initializeEditor();
+    const interval = setInterval(checkEditorPresence, 1000);
     return () => {
+      clearInterval(interval);
       disposeEditor();
     };
-  }, [initializeEditor]);
-
-  const updateMonacoFromChatGPT = () => {
-    const chatGPTTextarea = document.querySelector(CHATGPT_PROMPT_TEXAREA_ID);
-    if (chatGPTTextarea && editorRef.current) {
-      const content = chatGPTTextarea.textContent ?? '';
-      editorRef.current.setValue(content);
-    }
-  };
-
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === 'childList' ||
-          mutation.type === 'characterData'
-        ) {
-          // updateMonacoFromChatGPT();
-        }
-      });
-    });
-
-    const chatGPTTextarea = document.querySelector(CHATGPT_PROMPT_TEXAREA_ID);
-    if (chatGPTTextarea) {
-      observer.observe(chatGPTTextarea, {
-        childList: true,
-        characterData: true,
-        subtree: true,
-      });
-    }
-    return () => {
-      observer.disconnect();
-    };
-  }, [updateMonacoFromChatGPT]);
+  }, [initializeEditor, checkInitialized]);
 
   return null;
 };

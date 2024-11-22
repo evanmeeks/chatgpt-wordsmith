@@ -2,7 +2,7 @@
   "name": "chatgpt-wordsmith",
   "displayName": "ChatGPT Wordsmith",
   "private": true,
-  "version": "1.2.1",
+  "version": "1.2.2",
   "type": "module",
   "author": "no one",
   "description": "Prompt Codification and Visualization Tools - Replace ChatGPT's editors the Microsoft Monaco Editor.",

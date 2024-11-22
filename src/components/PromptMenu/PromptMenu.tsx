@@ -1,6 +1,10 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
-import { PROSEMIRROR, LANGUAGE_SELECTOR_SELECT } from '../../content/AssignDom';
+import {
+  PROSEMIRROR,
+  LANGUAGE_SELECTOR_SELECT,
+  MENU_INITIALIZED_CLASS,
+} from '../../content/AssignDom';
 import { SettingsProvider, useSettings } from '../../context/SettingsContext';
 import LanguageSelector from '../LanguageMenu/LanguageSelector';
 import './index.css';
@@ -12,71 +16,73 @@ const PromptMenu: React.FC = () => {
   const languageSelectorRef = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<ReturnType<typeof createRoot> | null>(null);
   const promptContainerRef = useRef<HTMLDivElement | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+
+  const checkInitialized = useCallback(() => {
+    const promptParent = document
+      .querySelector(PROSEMIRROR)
+      ?.closest('.flex.w-full.flex-col');
+    const isInitialized = promptParent?.classList.contains(
+      MENU_INITIALIZED_CLASS,
+    );
+    console.log('Menu is initialized:', isInitialized);
+    return isInitialized;
+  }, []);
 
   const initializeEditor = useCallback(() => {
-    const homePageSuggestions = document.querySelector('.bottom-full');
-    if (homePageSuggestions) {
-      homePageSuggestions.classList.replace('bottom-full', 'ws-bottom-24');
-    }
+    console.log('Attempting to initialize menu...');
     const promptTextArea =
       document.querySelector<HTMLTextAreaElement>(PROSEMIRROR);
-    if (!promptTextArea || isInitialized) return;
-
-    const promptContainer = promptTextArea.closest(
+    const promptContainer = promptTextArea?.closest(
       '.flex.w-full.flex-col',
     ) as HTMLDivElement;
-    if (!promptContainer) {
-      console.error('No prompt container found');
+
+    if (!promptTextArea || !promptContainer) {
+      console.error('Required elements not found');
       return;
     }
 
-    promptContainerRef.current = promptContainer;
-    if (promptContainer) {
-      promptContainer.classList.add('prompt-container');
-      promptContainer.style.borderTopLeftRadius = '0px';
-      promptContainer.style.borderTopRightRadius = '0px';
-
-      if (!languageSelectorRef.current) {
-        languageSelectorRef.current = document.createElement('div');
-        languageSelectorRef.current.className = LANGUAGE_SELECTOR_SELECT;
-
-        // Insert the language selector before the input row
-        const inputRow = promptContainer.querySelector('.flex.items-end');
-        if (inputRow) {
-          promptContainer.insertBefore(languageSelectorRef.current, inputRow);
-        } else {
-          promptContainer.prepend(languageSelectorRef.current);
-        }
+    // If already initialized, clean up first
+    if (checkInitialized()) {
+      console.log('Cleaning up existing menu...');
+      if (rootRef.current) {
+        rootRef.current.unmount();
+        rootRef.current = null;
       }
-
-      if (!rootRef.current && languageSelectorRef.current) {
-        rootRef.current = createRoot(languageSelectorRef.current);
+      if (languageSelectorRef.current) {
+        languageSelectorRef.current.remove();
       }
-
-      setIsInitialized(true);
+      promptContainer.classList.remove(MENU_INITIALIZED_CLASS);
+      promptContainer.classList.remove('prompt-container');
     }
-  }, [isInitialized]);
 
-  const handleLanguageChange = useCallback(
-    (value: string, conversationMessageId: string): void => {
-      updateSettings({ promptEditor: value });
+    promptContainerRef.current = promptContainer;
+    promptContainer.classList.add('prompt-container');
+    promptContainer.style.borderTopLeftRadius = '0px';
+    promptContainer.style.borderTopRightRadius = '0px';
 
-      const languageChangeEvent = new CustomEvent('wordsmith-language-change', {
-        bubbles: true,
-        detail: {
-          language: value,
-          conversationId: conversationMessageId,
-          messageId: conversationMessageId,
-        },
-      });
-      window.dispatchEvent(languageChangeEvent);
-    },
-    [],
-  );
+    // Create language selector container
+    languageSelectorRef.current = document.createElement('div');
+    languageSelectorRef.current.className = LANGUAGE_SELECTOR_SELECT;
+
+    const inputRow = promptContainer.querySelector('.flex.items-end');
+    if (inputRow) {
+      promptContainer.insertBefore(languageSelectorRef.current, inputRow);
+    } else {
+      promptContainer.prepend(languageSelectorRef.current);
+    }
+
+    // Initialize React root and render
+    rootRef.current = createRoot(languageSelectorRef.current);
+    renderLanguageSelector();
+
+    // Mark as initialized
+    promptContainer.classList.add(MENU_INITIALIZED_CLASS);
+    console.log('Menu initialization complete');
+  }, [settings]);
 
   const renderLanguageSelector = useCallback(() => {
-    if (rootRef.current && isInitialized) {
+    console.log('Rendering language selector...');
+    if (rootRef.current) {
       rootRef.current.render(
         <SettingsProvider>
           <div
@@ -94,24 +100,55 @@ const PromptMenu: React.FC = () => {
           </div>
         </SettingsProvider>,
       );
+      console.log('Language selector rendered');
     }
-  }, [settings, updateSettings, isInitialized]);
+  }, [settings, updateSettings]);
+
+  const handleLanguageChange = useCallback(
+    (value: string, conversationMessageId: string): void => {
+      updateSettings({ promptEditor: value });
+      const languageChangeEvent = new CustomEvent('wordsmith-language-change', {
+        bubbles: true,
+        detail: {
+          language: value,
+          conversationId: conversationMessageId,
+          messageId: conversationMessageId,
+        },
+      });
+      window.dispatchEvent(languageChangeEvent);
+    },
+    [],
+  );
 
   useEffect(() => {
-    initializeEditor();
-  }, [initializeEditor]);
-
-  useEffect(() => {
-    if (isInitialized) {
-      renderLanguageSelector();
-    }
-  }, [isInitialized, renderLanguageSelector]);
-
-  useEffect(() => {
-    return () => {
-      setIsInitialized(false);
+    const checkMenuPresence = () => {
+      if (!checkInitialized()) {
+        console.log('Menu not initialized, attempting initialization...');
+        initializeEditor();
+      }
     };
-  }, []);
+
+    checkMenuPresence();
+    const interval = setInterval(checkMenuPresence, 1000);
+
+    return () => {
+      clearInterval(interval);
+      // Cleanup
+      const promptContainer = document
+        .querySelector(PROSEMIRROR)
+        ?.closest('.flex.w-full.flex-col');
+      if (promptContainer) {
+        promptContainer.classList.remove(MENU_INITIALIZED_CLASS);
+        promptContainer.classList.remove('prompt-container');
+      }
+      if (rootRef.current) {
+        rootRef.current.unmount();
+      }
+      if (languageSelectorRef.current) {
+        languageSelectorRef.current.remove();
+      }
+    };
+  }, [initializeEditor, checkInitialized]);
 
   return null;
 };
