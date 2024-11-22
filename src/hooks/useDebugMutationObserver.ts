@@ -8,6 +8,7 @@ interface DebugMutationObserverOptions {
   debounceTime?: number;
   logToConsole?: boolean;
   logToService?: boolean;
+  logToStorage?: boolean;
   serviceUrl?: string;
   trackUserEvents?: boolean;
   userEventTypes?: string[];
@@ -158,9 +159,10 @@ const useDebugMutationObserver = (options: DebugMutationObserverOptions) => {
 
 function describeDOMElement(element: Element): string {
   if (!element) return 'Unknown Element';
-  const tagName = element.tagName.toLowerCase();
+  const tagName = element.tagName;
   const id = element.id ? `#${element.id}` : '';
-  const classes = Array.from(element.classList)
+  if (!element.classList) return `${tagName}${id}`;
+  const classes = Array.from(element?.classList)
     .map((c) => `.${c}`)
     .join('');
   return `${tagName}${id}${classes}`;

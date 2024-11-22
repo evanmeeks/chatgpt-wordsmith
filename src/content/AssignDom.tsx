@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 // DOM selector classes
+export const EDITOR_INITIALIZED_CLASS = 'ws-editor-initialized';
+export const MENU_INITIALIZED_CLASS = 'ws-menu-initialized';
 export const CHAGPT_PROMPT_SELECTOR = 'chatgpt-prompt-textarea';
 export const TURN_PARENT = 'article';
 export const CONV_EDIT_BUTTON_ARIA_LABEL = 'aria-label^="Edit"';
