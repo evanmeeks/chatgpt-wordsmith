@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 // DOM selector classes
 export const EDITOR_INITIALIZED_CLASS = 'ws-editor-initialized';
 export const MENU_INITIALIZED_CLASS = 'ws-menu-initialized';
@@ -48,7 +48,7 @@ export const COLLAPSIBLE_TOGGLE = 'collapse-toggle-button';
 export const LANGUAGE_LABEL =
   'language-label ws-cursor-pointer ws-bg-gray-200 ws-text-gray-700 ws-rounded ws-px-2 ws-py-1 ws-text-xs';
 export const LABLELED_CONTENT =
-  'turn-container ws-border-1 ws-px-5 ws-py-[40px] ws-border ws-rounded ws-relative';
+  'turn-container ws-border-1 ws-px-5   ws-border ws-rounded ws-relative';
 export const LANGUAGE_MENU_CONTAINER =
   'language-selector-container ws-absolute ws-right-0 ws-top-0 ws-bg-blue-500 ws-font-bold ws-text-white ws-text-center ws-py-1 ws-px-2 ws-text-xs ws-rounded';
 export const CONVERSATION_BUTTON_LABEL_CONTENT = COLLAPSIBLE_TOGGLE;
@@ -62,43 +62,28 @@ export const dataAttributeSelector = (attribute: string) => `[${attribute}]`;
 
 const AssignDom: React.FC = () => {
   const processedElementsRef = useRef<Set<string>>(new Set());
+  const initializedContainersRef = useRef<Set<string>>(new Set());
+  const currentIndexRef = useRef<number>(0);
+  const isNewChatRef = useRef<boolean>(false);
+  const pendingTurnsRef = useRef<Element[]>([]);
 
   const markConversationTurnEditable = useCallback(
     (element: Element, index: number) => {
-      // Skip if already processed
       if (element?.hasAttribute(MARKED_DATA)) return;
+      addLabels(element, index);
+      document
+        .querySelectorAll(CHATGPT_ARIA_LABEL)
+        .forEach((button) => button.classList.add(CONV_EDIT));
 
-      // Get unique identifier for element
-      const messageId = element
-        .querySelector(ROLE_CONTAINER)
-        ?.getAttribute('data-message-id');
-      if (messageId && processedElementsRef.current.has(messageId)) return;
+      const textArea =
+        element.querySelector(CHATGPT_PROMPT_TEXAREA_ID) ??
+        element.querySelector(PROSEMIRROR);
 
-      // Process edit buttons
-      const editButtons = document.querySelectorAll(CHATGPT_ARIA_LABEL);
-      editButtons.forEach((button) => {
-        if (!button.classList.contains(CONV_EDIT)) {
-          button.classList.add(CONV_EDIT);
-        }
-      });
+      if (textArea) textArea.classList.add(CHATGPT_PROMPT);
 
-      // Handle text areas
-      const textAreas = [
-        element.querySelector(CHATGPT_PROMPT_TEXAREA_ID),
-        element.querySelector(PROSEMIRROR),
-      ].filter((el): el is HTMLElement => el !== null);
-
-      textAreas.forEach((textArea) => {
-        if (!textArea.classList.contains(CHATGPT_PROMPT)) {
-          textArea.classList.add(CHATGPT_PROMPT);
-        }
-      });
-
-      // Mark as editable
       if (!element.classList.contains(WORDSMITH_EDITABLE_CONVERSATION)) {
         element.classList.add(WORDSMITH_EDITABLE_CONVERSATION);
-
-        const editButton = element.querySelector<HTMLElement>(
+        const editButton = element.querySelector(
           `[${CONV_EDIT_BUTTON_ARIA_LABEL}]`,
         );
 
@@ -106,163 +91,184 @@ const AssignDom: React.FC = () => {
           editButton.classList.add(CONV_EDIT);
         }
       }
-
-      // Mark as processed
       element.setAttribute(MARKED_DATA, 'true');
-      if (messageId) {
-        processedElementsRef.current.add(messageId);
-      }
     },
     [],
   );
 
   const addLabels = useCallback((element: Element, index: number) => {
     if (!element) return;
-
-    // Add relative positioning if needed
-    if (!element.classList.contains('ws-relative')) {
-      element.classList.add('ws-relative');
-    }
-
-    // Find role element with more specific targeting
+    const parentElement = element.closest(TEXT_BASE_CHILD) || element;
+    parentElement.classList.add('ws-relative');
     const roleElement =
-      element.querySelector<HTMLElement>(ROLE_CONTAINER) ||
-      element.closest(ROLE_CONTAINER) ||
-      element.querySelector(TURN_PARENT);
+      parentElement.querySelector<HTMLDivElement>(ROLE_CONTAINER) ??
+      parentElement.querySelector(TURN_PARENT);
+    const hasRole =
+      roleElement && roleElement.getAttribute('data-message-author-role');
+    if (!roleElement || !hasRole) return;
 
-    const role = roleElement?.getAttribute('data-message-author-role');
-    if (!roleElement || !role) return;
+    const role = roleElement.getAttribute('data-message-author-role') ?? 'user';
 
-    // Skip if already labeled
-    if (element.classList.contains('labeled')) return;
-
-    // Calculate level index
     const levelIndex = Math.floor(index / 2) + 1;
-
-    // Create label elements
     const conversationLabel = document.createElement('button');
     const roleBgColor = role === 'user' ? USER_BG_COLOR : AGENT_BG_COLOR;
-    const roleBorderColor =
-      role === 'user' ? USER_BORDER_COLOR : AGENT_BORDER_COLOR;
     const displayRole = role === 'user' ? 'user' : 'chatgpt';
 
-    // Set up label classes
-    conversationLabel.className = [
-      `${displayRole}-level-${levelIndex}`,
-      `level-${levelIndex}`,
-      roleBgColor,
-      CONVERSATION_LEVEL_LABEL,
-    ].join(' ');
+    conversationLabel.className =
+      `${displayRole}-level-${levelIndex} level-${levelIndex} ${roleBgColor} ` +
+      CONVERSATION_LEVEL_LABEL;
 
-    // Create and set up wrapper
     const labelWrapper = document.createElement('span');
     labelWrapper.classList.add('ws-flex', 'ws-items-center');
-    labelWrapper.textContent = `${displayRole}-level-${levelIndex}`;
+
+    labelWrapper.appendChild(
+      document.createTextNode(`${displayRole}-level-${levelIndex}`),
+    );
+
+    conversationLabel.textContent = '';
     conversationLabel.appendChild(labelWrapper);
 
-    // Add label and styling to element
-    element.prepend(conversationLabel);
-    element.className = [
-      element.className,
-      LABLELED_CONTENT,
-      'labeled',
-      roleBorderColor,
-    ].join(' ');
-
-    // Update z-index for proper stacking
-    const existingStyle = element.getAttribute('style') || '';
-    element.setAttribute(
-      'style',
-      `${existingStyle}; position: relative; z-index: ${100 - levelIndex}`,
-    );
+    if (!parentElement.classList.contains('labeled')) {
+      parentElement.prepend(conversationLabel);
+      parentElement.className =
+        parentElement.className +
+        LABLELED_CONTENT +
+        ` labeled ${role === 'user' ? USER_BORDER_COLOR : AGENT_BORDER_COLOR}`;
+    }
   }, []);
 
   const nodeHandler = useCallback(
     (element: Element, index?: number) => {
-      const actualIndex = index ?? 0;
+      addLabels(element, index ?? 0);
 
-      // Handle both direct matches and nested elements
-      if (element.matches(GROUPED_TURN_CONTAINER)) {
-        addLabels(element, actualIndex);
-        markConversationTurnEditable(element, actualIndex);
-      } else {
-        // Process nested turns
-        element
-          .querySelectorAll(GROUPED_TURN_CONTAINER)
-          .forEach((nestedElement, nestedIndex) => {
-            addLabels(nestedElement, actualIndex + nestedIndex);
-            markConversationTurnEditable(
-              nestedElement,
-              actualIndex + nestedIndex,
-            );
-          });
-      }
+      markConversationTurnEditable(element, index ?? 0);
     },
     [addLabels, markConversationTurnEditable],
   );
 
+  const processPendingTurns = useCallback(() => {
+    console.log('Processing pending turns:', pendingTurnsRef.current.length);
+
+    const turns = [...pendingTurnsRef.current];
+    pendingTurnsRef.current = []; // Clear pending turns
+
+    // Sort and process turns
+    turns.sort((a, b) => {
+      const position = a.compareDocumentPosition(b);
+      return position & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+    });
+
+    currentIndexRef.current = 0; // Reset index for new chat
+    turns.forEach((turn) => nodeHandler(turn));
+
+    isNewChatRef.current = false;
+  }, [nodeHandler]);
+
+  const checkIfNewChat = useCallback(() => {
+    return window.location.href.includes('chatgpt.com/?model=');
+  }, []);
+
   const handleMutations = useCallback(
     (mutations: MutationRecord[]) => {
-      const processedNodes = new Set<Node>();
+      // Check for new chat condition
+      if (checkIfNewChat() && !isNewChatRef.current) {
+        isNewChatRef.current = true;
+        pendingTurnsRef.current = [];
+        console.log('New chat detected - will queue turns');
+      }
 
       mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            // Skip if already processed
-            if (processedNodes.has(node)) return;
-            processedNodes.add(node);
+        // Check for completion signal
+        if (
+          isNewChatRef.current &&
+          mutation.type === 'childList' &&
+          mutation.target instanceof Element &&
+          mutation.target.matches('.sr-only') &&
+          mutation.removedNodes.length === 1 &&
+          mutation.addedNodes.length === 0
+        ) {
+          console.log('Chat completion detected - processing turns');
+          processPendingTurns();
+          return;
+        }
 
+        if (mutation.type === 'childList') {
+          mutation.removedNodes.forEach((node) => {
+            if (node instanceof Element) {
+              const id =
+                node.getAttribute('data-message-id') ||
+                node
+                  .querySelector(ROLE_CONTAINER)
+                  ?.getAttribute('data-message-id');
+              if (id) {
+                initializedContainersRef.current.delete(id);
+                processedElementsRef.current.delete(id);
+              }
+            }
+          });
+
+          mutation.addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
               const element = node as Element;
 
-              // Check if it's a conversation turn
-              if (element.matches(GROUPED_TURN_CONTAINER)) {
-                nodeHandler(element);
+              // Find conversation turns
+              const turns = element.matches(GROUPED_TURN_CONTAINER)
+                ? [element]
+                : Array.from(element.querySelectorAll(GROUPED_TURN_CONTAINER));
+
+              if (isNewChatRef.current) {
+                // Queue turns for later processing
+                pendingTurnsRef.current.push(...turns);
+                console.log('Queued turns:', turns.length);
               } else {
-                // Process any nested conversation turns
-                const turns = element.querySelectorAll(GROUPED_TURN_CONTAINER);
-                turns.forEach((turn, index) => {
-                  if (!processedNodes.has(turn)) {
-                    processedNodes.add(turn);
-                    nodeHandler(turn, index);
-                  }
-                });
+                // Process turns immediately for existing chats
+                turns.forEach((turn) => nodeHandler(turn));
               }
             }
           });
         }
       });
     },
-    [nodeHandler],
+    [checkIfNewChat, processPendingTurns, nodeHandler],
   );
 
+  // Modify initialization effect
   useEffect(() => {
-    // Set up mutation observer
     const observer = new MutationObserver(handleMutations);
 
-    // Configure observation options
-    const observerOptions: MutationObserverInit = {
+    observer.observe(document.body, {
       childList: true,
       subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'data-message-author-role'],
-    };
-
-    // Start observing
-    observer.observe(document.body, observerOptions);
-
-    // Initial processing of existing elements
-    const existingElements = document.querySelectorAll(GROUPED_TURN_CONTAINER);
-    existingElements.forEach((element, index) => {
-      nodeHandler(element, index);
+      attributes: false,
     });
 
-    // Cleanup
+    // Check if we're starting with a new chat
+    isNewChatRef.current = checkIfNewChat();
+
+    if (!isNewChatRef.current) {
+      // Process existing elements only for existing chats
+      currentIndexRef.current = 0;
+      const existingTurns = Array.from(
+        document.querySelectorAll(GROUPED_TURN_CONTAINER),
+      );
+
+      existingTurns.sort((a, b) => {
+        const position = a.compareDocumentPosition(b);
+        return position & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+      });
+
+      existingTurns.forEach((element) => nodeHandler(element));
+    }
+
     return () => {
       observer.disconnect();
       processedElementsRef.current.clear();
+      initializedContainersRef.current.clear();
+      currentIndexRef.current = 0;
+      pendingTurnsRef.current = [];
+      isNewChatRef.current = false;
     };
-  }, [handleMutations, nodeHandler]);
+  }, [handleMutations, nodeHandler, checkIfNewChat]);
 
   return null;
 };

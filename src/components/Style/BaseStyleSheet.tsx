@@ -26,6 +26,10 @@ export const BaseStyleSheet = () => {
                 max-width: 97%;
                 min-width: 97%;
               }
+              .mx-auto {
+                 max-width: 100%;
+                 min-width: 100%;
+               }
              `
               : ''
           }
