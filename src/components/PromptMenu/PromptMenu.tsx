@@ -24,7 +24,7 @@ const PromptMenu: React.FC = () => {
     const isInitialized = promptParent?.classList.contains(
       MENU_INITIALIZED_CLASS,
     );
-    console.log('Menu is initialized:', isInitialized);
+
     return isInitialized;
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 // DOM selector classes
 export const EDITOR_INITIALIZED_CLASS = 'ws-editor-initialized';
 export const MENU_INITIALIZED_CLASS = 'ws-menu-initialized';
@@ -58,24 +58,47 @@ export const AGENT_TURN_CONTAINER = TEXT_BASE + HAS_ASSISTANT_PSUEUDO;
 export const MARKED_DATA_ATTR = '[data-marked]';
 export const dataAttributeSelector = (attribute: string) => `[${attribute}]`;
 
+// Keep existing constant imports...
+
 const AssignDom: React.FC = () => {
+  const processedElementsRef = useRef<Set<string>>(new Set());
+
   const markConversationTurnEditable = useCallback(
     (element: Element, index: number) => {
+      // Skip if already processed
       if (element?.hasAttribute(MARKED_DATA)) return;
-      addLabels(element, index);
-      document
-        .querySelectorAll(CHATGPT_ARIA_LABEL)
-        .forEach((button) => button.classList.add(CONV_EDIT));
 
-      const textArea =
-        element.querySelector(CHATGPT_PROMPT_TEXAREA_ID) ??
-        element.querySelector(PROSEMIRROR);
+      // Get unique identifier for element
+      const messageId = element
+        .querySelector(ROLE_CONTAINER)
+        ?.getAttribute('data-message-id');
+      if (messageId && processedElementsRef.current.has(messageId)) return;
 
-      if (textArea) textArea.classList.add(CHATGPT_PROMPT);
+      // Process edit buttons
+      const editButtons = document.querySelectorAll(CHATGPT_ARIA_LABEL);
+      editButtons.forEach((button) => {
+        if (!button.classList.contains(CONV_EDIT)) {
+          button.classList.add(CONV_EDIT);
+        }
+      });
 
+      // Handle text areas
+      const textAreas = [
+        element.querySelector(CHATGPT_PROMPT_TEXAREA_ID),
+        element.querySelector(PROSEMIRROR),
+      ].filter((el): el is HTMLElement => el !== null);
+
+      textAreas.forEach((textArea) => {
+        if (!textArea.classList.contains(CHATGPT_PROMPT)) {
+          textArea.classList.add(CHATGPT_PROMPT);
+        }
+      });
+
+      // Mark as editable
       if (!element.classList.contains(WORDSMITH_EDITABLE_CONVERSATION)) {
         element.classList.add(WORDSMITH_EDITABLE_CONVERSATION);
-        const editButton = element.querySelector(
+
+        const editButton = element.querySelector<HTMLElement>(
           `[${CONV_EDIT_BUTTON_ARIA_LABEL}]`,
         );
 
@@ -83,73 +106,127 @@ const AssignDom: React.FC = () => {
           editButton.classList.add(CONV_EDIT);
         }
       }
+
+      // Mark as processed
       element.setAttribute(MARKED_DATA, 'true');
+      if (messageId) {
+        processedElementsRef.current.add(messageId);
+      }
     },
     [],
   );
 
   const addLabels = useCallback((element: Element, index: number) => {
     if (!element) return;
-    element.classList.add('ws-relative');
+
+    // Add relative positioning if needed
+    if (!element.classList.contains('ws-relative')) {
+      element.classList.add('ws-relative');
+    }
+
+    // Find role element with more specific targeting
     const roleElement =
-      element.querySelector<HTMLDivElement>(ROLE_CONTAINER) ??
+      element.querySelector<HTMLElement>(ROLE_CONTAINER) ||
+      element.closest(ROLE_CONTAINER) ||
       element.querySelector(TURN_PARENT);
-    const hasRole =
-      roleElement && roleElement.getAttribute('data-message-author-role');
-    if (!roleElement || !hasRole) return;
 
-    const role = roleElement.getAttribute('data-message-author-role') ?? 'user';
+    const role = roleElement?.getAttribute('data-message-author-role');
+    if (!roleElement || !role) return;
 
+    // Skip if already labeled
+    if (element.classList.contains('labeled')) return;
+
+    // Calculate level index
     const levelIndex = Math.floor(index / 2) + 1;
+
+    // Create label elements
     const conversationLabel = document.createElement('button');
     const roleBgColor = role === 'user' ? USER_BG_COLOR : AGENT_BG_COLOR;
+    const roleBorderColor =
+      role === 'user' ? USER_BORDER_COLOR : AGENT_BORDER_COLOR;
     const displayRole = role === 'user' ? 'user' : 'chatgpt';
 
-    conversationLabel.className =
-      `${displayRole}-level-${levelIndex} level-${levelIndex} ${roleBgColor} ` +
-      CONVERSATION_LEVEL_LABEL;
+    // Set up label classes
+    conversationLabel.className = [
+      `${displayRole}-level-${levelIndex}`,
+      `level-${levelIndex}`,
+      roleBgColor,
+      CONVERSATION_LEVEL_LABEL,
+    ].join(' ');
 
+    // Create and set up wrapper
     const labelWrapper = document.createElement('span');
     labelWrapper.classList.add('ws-flex', 'ws-items-center');
-
-    labelWrapper.appendChild(
-      document.createTextNode(`${displayRole}-level-${levelIndex}`),
-    );
-
-    conversationLabel.textContent = '';
+    labelWrapper.textContent = `${displayRole}-level-${levelIndex}`;
     conversationLabel.appendChild(labelWrapper);
 
-    if (!element.classList.contains('labeled')) {
-      element.prepend(conversationLabel);
-      element.className =
-        element.className +
-        LABLELED_CONTENT +
-        ` labeled ${role === 'user' ? USER_BORDER_COLOR : AGENT_BORDER_COLOR}`;
-    }
+    // Add label and styling to element
+    element.prepend(conversationLabel);
+    element.className = [
+      element.className,
+      LABLELED_CONTENT,
+      'labeled',
+      roleBorderColor,
+    ].join(' ');
+
+    // Update z-index for proper stacking
+    const existingStyle = element.getAttribute('style') || '';
+    element.setAttribute(
+      'style',
+      `${existingStyle}; position: relative; z-index: ${100 - levelIndex}`,
+    );
   }, []);
 
   const nodeHandler = useCallback(
     (element: Element, index?: number) => {
-      addLabels(element, index ?? 0);
+      const actualIndex = index ?? 0;
 
-      markConversationTurnEditable(element, index ?? 0);
+      // Handle both direct matches and nested elements
+      if (element.matches(GROUPED_TURN_CONTAINER)) {
+        addLabels(element, actualIndex);
+        markConversationTurnEditable(element, actualIndex);
+      } else {
+        // Process nested turns
+        element
+          .querySelectorAll(GROUPED_TURN_CONTAINER)
+          .forEach((nestedElement, nestedIndex) => {
+            addLabels(nestedElement, actualIndex + nestedIndex);
+            markConversationTurnEditable(
+              nestedElement,
+              actualIndex + nestedIndex,
+            );
+          });
+      }
     },
     [addLabels, markConversationTurnEditable],
   );
 
   const handleMutations = useCallback(
     (mutations: MutationRecord[]) => {
+      const processedNodes = new Set<Node>();
+
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList') {
           mutation.addedNodes.forEach((node) => {
-            if (node.nodeType !== Node.ELEMENT_NODE) return;
-            const element = node as Element;
+            // Skip if already processed
+            if (processedNodes.has(node)) return;
+            processedNodes.add(node);
 
             if (node.nodeType === Node.ELEMENT_NODE) {
-              if (element.matches(TURN_CONTAINER)) {
-                //
+              const element = node as Element;
+
+              // Check if it's a conversation turn
+              if (element.matches(GROUPED_TURN_CONTAINER)) {
+                nodeHandler(element);
               } else {
-                element.querySelectorAll(TURN_CONTAINER).forEach(nodeHandler);
+                // Process any nested conversation turns
+                const turns = element.querySelectorAll(GROUPED_TURN_CONTAINER);
+                turns.forEach((turn, index) => {
+                  if (!processedNodes.has(turn)) {
+                    processedNodes.add(turn);
+                    nodeHandler(turn, index);
+                  }
+                });
               }
             }
           });
@@ -160,21 +237,32 @@ const AssignDom: React.FC = () => {
   );
 
   useEffect(() => {
+    // Set up mutation observer
     const observer = new MutationObserver(handleMutations);
-    observer.observe(document.body, {
+
+    // Configure observation options
+    const observerOptions: MutationObserverInit = {
       childList: true,
       subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'data-message-author-role'],
+    };
+
+    // Start observing
+    observer.observe(document.body, observerOptions);
+
+    // Initial processing of existing elements
+    const existingElements = document.querySelectorAll(GROUPED_TURN_CONTAINER);
+    existingElements.forEach((element, index) => {
+      nodeHandler(element, index);
     });
 
+    // Cleanup
     return () => {
       observer.disconnect();
+      processedElementsRef.current.clear();
     };
-  }, [handleMutations]);
-
-  useEffect(() => {
-    const elements = document.querySelectorAll(GROUPED_TURN_CONTAINER);
-    elements.forEach((element, index) => addLabels(element, index));
-  }, [addLabels]);
+  }, [handleMutations, nodeHandler]);
 
   return null;
 };
