@@ -5,8 +5,20 @@
 @tailwind components;
 @tailwind utilities;
 
+[data-message-author-role='user'] {
+  border-radius: 4px;
+}
+[data-message-author-role='assistant'] {
+  border-radius: 4px;
+}
+
+.gizmo-bot-avatar {
+  margin-top: 40px;
+}
+
 .fullscreen-editor .prompt-language-selector-container {
-  top: -19px;
+  top: 2px;
+  position: fixed;
   z-index: 111111;
   left: -25px;
   border-radius: 0px;
@@ -40,9 +52,13 @@
   position: fixed;
 }
 
-.fullscreen-toggle {
+.fullscreen-editor button.fullscreen-toggle {
+  top: 0px;
+}
+
+button.fullscreen-toggle {
   position: absolute;
-  top: -21px;
+  top: -22px;
   right: 19px;
   background: transparent;
   border: none;
@@ -161,6 +177,8 @@ li._conversationTurnWrapper_1ltur_211 {
 
 .group\/conversation-turn {
   border-top-left-radius: 3px;
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
 .prompt-language-selector-container button.SelectTrigger {
@@ -213,8 +231,12 @@ svg.lucide.lucide-pen {
   top: 2px;
 }
 
+.labeled {
+  border-top-right-radius: 0px;
+}
+
 .language-selector-container {
-  right: -1px;
+  right: -21px;
   top: -22px;
   width: -webkit-fill-available;
   max-width: 44%;
