@@ -15,8 +15,29 @@ export const BaseStyleSheet = () => {
             animation: flash 1.5s ease-in-out;
           }
 
-          ${settings.conversation?.widthFull ? `.mx-auto {             max-width: 100%;            min-width: 100%;            }` : ''}
-          ${settings.conversation?.widthCustom ? `.mx-auto {            max-width: ${settings.conversation?.widthCustom}px;            min-width: ${settings.conversation?.widthCustom}px       }` : ''}
+          ${
+            settings.conversation?.widthFull
+              ? `
+            [slot="content"] ol li {
+               max-width: 100%;
+               min-width: 100%;
+             }
+            [slot="trailing"] > div{
+                max-width: 97%;
+                min-width: 97%;
+              }
+             `
+              : ''
+          }
+          ${
+            settings.conversation?.widthCustom
+              ? `
+            [slot="content"] ol li {
+             max-width: ${settings.conversation?.widthCustom}px;
+             min-width: ${settings.conversation?.widthCustom}px
+             }`
+              : ''
+          }
           @font-face {
             font-family: 'codicon';
             font-display: block;

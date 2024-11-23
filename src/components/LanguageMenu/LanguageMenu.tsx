@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-  USER_TURN_CONTAINER,
+  TURN_PARENT,
+  GROUPED_TURN_CONTAINER,
+  ROLE_CONTAINER,
   USER_DATA_ATTR,
   CONV_EDIT_BUTTON_ARIA_LABEL,
   LANGUAGE_MENU_CONTAINER,
+  CONVERSATION_LEVEL_LABEL,
 } from '../../content/AssignDom';
 import { useSettings, SettingsProvider } from '../../context/SettingsContext';
 import LanguageSelector from './LanguageSelector';
@@ -22,14 +25,13 @@ const LanguageMenu: React.FC<LanguageMenuProps> = React.memo(
       new Set(),
     );
     const { settings, updateSettings } = useSettings();
-
     const attachedSelectorsRef = useRef<Set<string>>(new Set());
 
     const handleEditClick = useCallback(
       (turnElement: Element): void => {
         handleWordsmithEdit();
         const editButton = turnElement.querySelector<HTMLButtonElement>(
-          CONV_EDIT_BUTTON_ARIA_LABEL,
+          `[${CONV_EDIT_BUTTON_ARIA_LABEL}]`,
         );
         if (editButton) {
           editButton.click();
@@ -40,7 +42,9 @@ const LanguageMenu: React.FC<LanguageMenuProps> = React.memo(
 
     const attachButtonListener = useCallback(
       (turnElement: Element | null) => {
-        const editButton = turnElement!.querySelector<HTMLButtonElement>(
+        if (!turnElement) return;
+
+        const editButton = turnElement.querySelector<HTMLButtonElement>(
           `[${CONV_EDIT_BUTTON_ARIA_LABEL}]`,
         );
         if (editButton) {
@@ -50,70 +54,82 @@ const LanguageMenu: React.FC<LanguageMenuProps> = React.memo(
       [handleDefaultEdit],
     );
 
-    const createContainer = (turnElement: Element) => {
+    const createContainer = useCallback((turnElement: Element) => {
       const container = document.createElement('div');
       container.className = LANGUAGE_MENU_CONTAINER;
-      const conversationTurn = turnElement;
-      if (conversationTurn) {
-        const insertionPoint = conversationTurn.querySelector('.level-label');
-        if (insertionPoint) {
-          insertionPoint.insertAdjacentElement('beforebegin', container);
-        } else {
-          conversationTurn.insertAdjacentElement('beforebegin', container);
-        }
+
+      // Find the group container for the turn
+      const groupContainer = turnElement.closest(GROUPED_TURN_CONTAINER);
+      if (!groupContainer) return container;
+
+      // Check if level label exists and insert before it
+      const levelLabel = groupContainer.querySelector('.level-label');
+      if (levelLabel) {
+        levelLabel.insertAdjacentElement('beforebegin', container);
       } else {
-        (turnElement as HTMLElement).appendChild(container);
+        // Create level label if it doesn't exist
+        const label = document.createElement('div');
+        label.className = CONVERSATION_LEVEL_LABEL;
+        groupContainer.insertBefore(label, groupContainer.firstChild);
+        label.insertAdjacentElement('beforebegin', container);
       }
+
       return container;
-    };
+    }, []);
 
-    const renderLanguageSelector = (
-      container: HTMLElement,
-      turnElement: Element,
-      conversationMessageId: string,
-    ) => {
-      const content = (
-        <SettingsProvider>
-          <LanguageSelector
-            handleEditClick={handleEditClick}
-            key={`language-selector-${conversationMessageId}`}
-            isInConversation={true}
-            turnElement={turnElement}
-            conversationMessageId={conversationMessageId}
-          />
-        </SettingsProvider>
-      );
+    const renderLanguageSelector = useCallback(
+      (
+        container: HTMLElement,
+        turnElement: Element,
+        conversationMessageId: string,
+      ) => {
+        const content = (
+          <SettingsProvider>
+            <LanguageSelector
+              handleEditClick={handleEditClick}
+              key={`language-selector-${conversationMessageId}`}
+              isInConversation={true}
+              turnElement={turnElement}
+              conversationMessageId={conversationMessageId}
+            />
+          </SettingsProvider>
+        );
 
-      const root = createRoot(container);
-      root.render(content);
-      attachedSelectorsRef.current.add(conversationMessageId);
-      turnElement.classList.add('language-selector-processed');
-      setRenderedElements((prev) => new Set(prev).add(conversationMessageId));
-    };
+        const root = createRoot(container);
+        root.render(content);
+        attachedSelectorsRef.current.add(conversationMessageId);
+        turnElement.classList.add('language-selector-processed');
+        setRenderedElements((prev) => new Set(prev).add(conversationMessageId));
+      },
+      [handleEditClick],
+    );
 
     const attachLanguageSelector = useCallback(
       (turnElement: Element | null) => {
         if (!turnElement) return;
 
-        attachButtonListener(turnElement);
-        let conversationMessageId: string = 'promptLanguage';
+        // Find the group container
+        const groupContainer = turnElement.closest(GROUPED_TURN_CONTAINER);
+        if (!groupContainer) return;
 
-        if (turnElement.querySelector('.language-selector-container')) return;
+        // Check if selector already exists
+        if (groupContainer.querySelector('.language-selector-container'))
+          return;
 
-        const userMessageElement = turnElement.querySelector(USER_DATA_ATTR);
-        if (!userMessageElement) return;
+        // Get message ID from the role container
+        const roleContainer = groupContainer.querySelector(ROLE_CONTAINER);
+        if (!roleContainer) return;
 
-        conversationMessageId = userMessageElement.getAttribute(
-          'data-message-id',
-        ) as string;
-        if (!conversationMessageId) return;
-
-        if (attachedSelectorsRef.current.has(conversationMessageId)) return;
+        const messageId = roleContainer.getAttribute('data-message-id');
+        if (!messageId || attachedSelectorsRef.current.has(messageId)) return;
 
         const container = createContainer(turnElement);
-        renderLanguageSelector(container, turnElement, conversationMessageId);
+        if (container) {
+          renderLanguageSelector(container, turnElement, messageId);
+          attachButtonListener(turnElement);
+        }
       },
-      [settings, updateSettings, handleEditClick, attachButtonListener],
+      [createContainer, renderLanguageSelector, attachButtonListener],
     );
 
     const handleMutations = useCallback(
@@ -124,11 +140,18 @@ const LanguageMenu: React.FC<LanguageMenuProps> = React.memo(
               if (node.nodeType === Node.ELEMENT_NODE) {
                 const elementNode = node as Element;
 
-                if (elementNode.matches(USER_TURN_CONTAINER)) {
+                // Check for turn parent or group container
+                if (
+                  elementNode.matches(TURN_PARENT) ||
+                  elementNode.matches(GROUPED_TURN_CONTAINER)
+                ) {
                   attachLanguageSelector(elementNode);
                 } else {
+                  // Search for nested turn elements
                   elementNode
-                    .querySelectorAll(USER_TURN_CONTAINER)
+                    .querySelectorAll(
+                      `${TURN_PARENT}, ${GROUPED_TURN_CONTAINER}`,
+                    )
                     .forEach(attachLanguageSelector);
                 }
               }
@@ -136,7 +159,7 @@ const LanguageMenu: React.FC<LanguageMenuProps> = React.memo(
           }
         });
       },
-      [attachLanguageSelector, attachButtonListener],
+      [attachLanguageSelector],
     );
 
     useEffect(() => {
@@ -146,23 +169,30 @@ const LanguageMenu: React.FC<LanguageMenuProps> = React.memo(
         subtree: true,
       });
 
+      // Initial scan for existing elements
+      document
+        .querySelectorAll(`${TURN_PARENT}, ${GROUPED_TURN_CONTAINER}`)
+        .forEach(attachLanguageSelector);
+
       return () => {
-        if (observerRef.current) {
-          observerRef.current.disconnect();
-        }
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-        }
+        observerRef.current?.disconnect();
+        timerRef.current && clearInterval(timerRef.current);
       };
     }, [handleMutations, attachLanguageSelector]);
 
+    // Handle settings changes
     useEffect(() => {
       renderedElements.forEach((messageId) => {
         const element = document.querySelector(
           `[data-message-id="${messageId}"]`,
         );
         if (element) {
-          attachLanguageSelector(element.closest(USER_TURN_CONTAINER));
+          const turnElement =
+            element.closest(GROUPED_TURN_CONTAINER) ||
+            element.closest(TURN_PARENT);
+          if (turnElement) {
+            attachLanguageSelector(turnElement);
+          }
         }
       });
     }, [settings.promptEditor, attachLanguageSelector, renderedElements]);

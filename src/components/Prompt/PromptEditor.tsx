@@ -57,7 +57,7 @@ const PromptEditor: React.FC = () => {
     const isIntialized = promptParent?.classList.contains(
       EDITOR_INITIALIZED_CLASS,
     );
-    console.log('Is initialized:', isIntialized);
+
     return promptParent?.classList.contains(EDITOR_INITIALIZED_CLASS);
   }, []);
 
@@ -261,6 +261,93 @@ const PromptEditor: React.FC = () => {
     }
   }, [settings]);
 
+  // Update the toggleFullscreen function
+  // const toggleFullscreen = useCallback(() => {
+  //   if (!containerRef.current) return;
+
+  //   setIsFullscreen((prevState) => {
+  //     const newState = !prevState;
+  //     if (newState) {
+  //       // First find the correct container to transform
+  //       const editorContainer = containerRef.current.closest(
+  //         '._prosemirror-parent_15ceg_1',
+  //       );
+  //       const composerBar = document.querySelector(
+  //         '[data-testid="bar-composer-bar"]',
+  //       );
+
+  //       if (editorContainer) {
+  //         // Apply fullscreen to the editor container
+  //         editorContainer.style.position = 'fixed';
+  //         editorContainer.style.inset = '0';
+  //         editorContainer.style.zIndex = '99999';
+  //         editorContainer.style.background = 'var(--bg-color, #ffffff)';
+  //         editorContainer.style.padding = '20px';
+  //         editorContainer.style.display = 'flex';
+  //         editorContainer.style.flexDirection = 'column';
+
+  //         // Hide the composer bar while in fullscreen
+  //         if (composerBar) {
+  //           composerBar.style.display = 'none';
+  //         }
+
+  //         // Adjust the monaco editor container
+  //         if (containerRef.current) {
+  //           containerRef.current.style.flex = '1';
+  //           containerRef.current.style.height = 'calc(100vh - 40px)';
+  //           containerRef.current.style.maxHeight = 'none';
+  //         }
+
+  //         // Force layout update for the editor
+  //         if (editorRef.current) {
+  //           requestAnimationFrame(() => {
+  //             editorRef.current?.layout();
+  //           });
+  //         }
+
+  //         document.body.style.overflow = 'hidden';
+  //       }
+  //     } else {
+  //       // Reset all styles when exiting fullscreen
+  //       const editorContainer = containerRef.current.closest(
+  //         '._prosemirror-parent_15ceg_1',
+  //       );
+  //       const composerBar = document.querySelector(
+  //         '[data-testid="bar-composer-bar"]',
+  //       );
+
+  //       if (editorContainer) {
+  //         editorContainer.style.position = '';
+  //         editorContainer.style.inset = '';
+  //         editorContainer.style.zIndex = '';
+  //         editorContainer.style.background = '';
+  //         editorContainer.style.padding = '';
+  //         editorContainer.style.display = '';
+  //         editorContainer.style.flexDirection = '';
+  //       }
+
+  //       if (composerBar) {
+  //         composerBar.style.display = '';
+  //       }
+
+  //       if (containerRef.current) {
+  //         containerRef.current.style.flex = '';
+  //         containerRef.current.style.height = '';
+  //         containerRef.current.style.maxHeight = '';
+  //       }
+
+  //       document.body.style.overflow = '';
+
+  //       // Readjust editor height
+  //       if (editorRef.current) {
+  //         adjustEditorHeight(editorRef.current);
+  //       }
+  //     }
+
+  //     return newState;
+  //   });
+  // }, []);
+
   const toggleFullscreen = useCallback(() => {
     if (!containerRef.current) return;
 
@@ -306,15 +393,17 @@ const PromptEditor: React.FC = () => {
   };
 
   const adjustEditorHeight = (editor: monaco.editor.IStandaloneCodeEditor) => {
-    if (!editor) return;
+    if (!editor || isFullscreen) return;
+
     const lineHeight = editor.getOption(monaco.editor.EditorOption.lineHeight);
     const lineCount = editor.getModel()?.getLineCount() ?? 1;
     const editorElement = editor.getDomNode();
 
     const minHeight = lineHeight * 3;
+    const maxHeight = isFullscreen ? window.innerHeight - 40 : lineHeight * 75;
     const newHeight = Math.max(
       minHeight,
-      Math.min(lineCount * lineHeight, 75 * lineHeight),
+      Math.min(lineCount * lineHeight, maxHeight),
     );
 
     if (containerRef.current) {
@@ -327,6 +416,29 @@ const PromptEditor: React.FC = () => {
 
     editor.layout();
   };
+
+  // const adjustEditorHeight = (editor: monaco.editor.IStandaloneCodeEditor) => {
+  //   if (!editor) return;
+  //   const lineHeight = editor.getOption(monaco.editor.EditorOption.lineHeight);
+  //   const lineCount = editor.getModel()?.getLineCount() ?? 1;
+  //   const editorElement = editor.getDomNode();
+
+  //   const minHeight = lineHeight * 3;
+  //   const newHeight = Math.max(
+  //     minHeight,
+  //     Math.min(lineCount * lineHeight, 75 * lineHeight),
+  //   );
+
+  //   if (containerRef.current) {
+  //     containerRef.current.style.height = `${newHeight}px`;
+  //   }
+
+  //   if (editorElement) {
+  //     editorElement.style.height = `${newHeight}px`;
+  //   }
+
+  //   editor.layout();
+  // };
 
   const handleLanguageUpdate = useCallback(
     (language: string) => {

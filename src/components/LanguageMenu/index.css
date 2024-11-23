@@ -188,38 +188,6 @@ div[wordsmith-editable] {
   padding: 4px 8px;
 }
 
-.fullscreen-editor .monaco-editor {
-  flex-grow: 1 !important;
-  width: 100% !important;
-}
-
-.fullscreen-editor .fullscreen-toggle {
-  top: 0 !important;
-  z-index: 111111;
-  position: fixed;
-}
-
-.fullscreen-editor .prompt-language-selector-container {
-  position: fixed;
-  top: -19px;
-  z-index: 111111;
-  left: -25px;
-  margin: 11px 0px 0px 0px;
-  width: 103vw;
-}
-
-.fullscreen-toggle {
-  position: absolute;
-  top: -21px;
-  right: 19px;
-  background: transparent;
-  border: none;
-  color: #888;
-  font-size: 20px;
-  cursor: pointer;
-  z-index: 10000;
-}
-
 .selected-lang {
   font-size: 0.9rem;
   color: #000;
