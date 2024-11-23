@@ -45,7 +45,6 @@ const PromptMenu: React.FC = () => {
     if (checkInitialized()) {
       console.log('Cleaning up existing menu...');
       if (rootRef.current) {
-        rootRef.current.unmount();
         rootRef.current = null;
       }
       if (languageSelectorRef.current) {
@@ -142,7 +141,7 @@ const PromptMenu: React.FC = () => {
         promptContainer.classList.remove('prompt-container');
       }
       if (rootRef.current) {
-        rootRef.current.unmount();
+        rootRef.current = null;
       }
       if (languageSelectorRef.current) {
         languageSelectorRef.current.remove();
